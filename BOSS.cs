@@ -26,22 +26,19 @@ namespace BOSS
 {
 	public class BOSS : Part
 	{	
-    	
+    	public Vessel activeVessel;
 		protected Rect windowPos;
 		protected Rect helpWindowPos;
 		private string kspDir;
 		private string kspDir2;
-		public int screenshotCount;
-		public int superSampleValueInt = 1;
+		public int screenshotCount,	superSampleValueInt = 1;
 		public string superSampleValueString = "1";
 		public string screenshotKey = "z";
 //		private string screenshotPersistence = "screenshotPersistence.txt";
 		private string pluginFolder = "PluginData/BOSS/";
 //		private string screenshotCountString;
 		public bool showHelp = false;
-		//private static int lastFrame = -1;
-		private int burstModeSetting = 1;
-		private string burstModeSettingString = "1";
+		//private static int lastFrame = -1;		
 		
 		
  		private void WindowGUI(int windowID)
@@ -64,15 +61,9 @@ namespace BOSS
 				GUILayout.BeginHorizontal();			
 			
 				if (GUILayout.Button("Screenshot",mainGUI,GUILayout.Width(85)))//GUILayout.Button is "true" when clicked
-				{	
-					if(burstModeSetting > 1)
-					{
-						burstMode();
-					}
-					else if (burstModeSetting <=1)
-					{					
-						screenshotMethod();
-					}
+				{							
+									
+						screenshotMethod();			
 				}	
 				
 				
@@ -90,7 +81,7 @@ namespace BOSS
 		private void helpGUI(int WindowID)
 		{	
 			GUILayout.BeginVertical();
-			GUILayout.Label("Warning: Setting supersampling to anything over 3-4 will probably crash KSP!");
+			GUILayout.Label("Warning: Don't set SS too high, it can crash KSP.");
 			GUILayout.Label("Supersampling is currently set to: " + superSampleValueInt.ToString(), GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Please enter your desired supersample value below: ");
 			superSampleValueString = GUILayout.TextField(superSampleValueInt.ToString());	
@@ -103,7 +94,7 @@ namespace BOSS
 				print("You haven't entered an integer.");
 			}
 			GUILayout.Label("You have taken " + screenshotCount + " screenshots.");
-			burstModeSettingString = GUILayout.TextField(burstModeSetting.ToString());	
+			/*burstModeSettingString = GUILayout.TextField(burstModeSetting.ToString());	
 			try
 			{
 				burstModeSetting = Int32.Parse(burstModeSettingString);
@@ -111,7 +102,7 @@ namespace BOSS
 			catch
 			{
 				print("You haven't entered an integer.");
-			}
+			}*/
 			GUILayout.EndVertical();
 			GUI.DragWindow(new Rect(0, 0, 10000, 20));				
 		}
@@ -172,6 +163,9 @@ namespace BOSS
 			}
 			
 		}
+		
+		
+		
 		protected override void onPartStart()
 		{	
 			if ((windowPos.x == 0) && (windowPos.y == 0))//windowPos is used to position the GUI window, lets set it in the center of the screen
@@ -184,15 +178,9 @@ namespace BOSS
 		protected override void onPartUpdate()
 			{
 				if (Input.GetKeyDown(screenshotKey))
-				{
-					if(burstModeSetting > 1)
-					{
-						burstMode();
-					}
-					else if (burstModeSetting <=1)
-					{					
+				{					
 						screenshotMethod();
-					}
+					
 				}			
 			}
 		
@@ -224,16 +212,8 @@ namespace BOSS
 			print("Loaded BOSS settings.");
 			
 			
-        }
+        }		
 		
-		private void burstMode()
-		{
-			while(burstModeSetting > 1)
-			{
-				screenshotMethod();
-				burstModeSetting--;
-			}
-		}
 		
 //--onPartDestroy is currently not in use as I want people to be able to take screenshots even after their craft is destroyed---//
 //	 	protected override void onPartDestroy() 
