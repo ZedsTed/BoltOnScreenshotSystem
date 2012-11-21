@@ -4,6 +4,8 @@ This plugin allows you to take screenshots within KSP at a higher resolution tha
 
 Changelog
 --
+v0.1.2 - Prevented spamming of the debug log. Fixed non-updating text field.
+
 v0.1.1 - Added in Settings Persistence and a partially implemented Burst Mode.
 
 v0.1 - Public Release

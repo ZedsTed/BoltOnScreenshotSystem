@@ -38,7 +38,8 @@ namespace BOSS
 		private string pluginFolder = "PluginData/BOSS/";
 //		private string screenshotCountString;
 		public bool showHelp = false;
-		//private static int lastFrame = -1;		
+		//private static int lastFrame = -1;	
+		int i;
 		
 		
  		private void WindowGUI(int windowID)
@@ -84,14 +85,18 @@ namespace BOSS
 			GUILayout.Label("Warning: Don't set SS too high, it can crash KSP.");
 			GUILayout.Label("Supersampling is currently set to: " + superSampleValueInt.ToString(), GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
 			GUILayout.Label("Please enter your desired supersample value below: ");
-			superSampleValueString = GUILayout.TextField(superSampleValueInt.ToString());	
+			superSampleValueString = GUILayout.TextField(superSampleValueString);	
 			try
 			{
 				superSampleValueInt = Int32.Parse(superSampleValueString);
+				i = 0;
 			}
 			catch
 			{
+				while (i < 1){ // stops the catch from spamming the debug log.
 				print("You haven't entered an integer.");
+				i++;
+				}
 			}
 			GUILayout.Label("You have taken " + screenshotCount + " screenshots.");
 			/*burstModeSettingString = GUILayout.TextField(burstModeSetting.ToString());	
