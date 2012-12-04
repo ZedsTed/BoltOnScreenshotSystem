@@ -1,9 +1,15 @@
-Bolt-On Screenshot System (B.O.S.S.) v0.1.1 - Alpha
+Bolt-On Screenshot System (B.O.S.S.) v0.2.2 - Alpha
 ==
 This plugin allows you to take screenshots within KSP at a higher resolution than your current screen resolution, using something called 'supersampling'. 
 
 Changelog
 --
+v0.2.2 - Fixed issues with multiple Bolts being on the same craft and thus causing BOSS to bug out.
+
+v0.2.1 - Reverted to old internal structure for GUI, will progress with it at another date.
+
+v0.2 - Changed to PartModule. Updated for 0.18. Changed GUI. Fixed various little bugs.
+
 v0.1.2 - Prevented spamming of the debug log. Fixed non-updating text field.
 
 v0.1.1 - Added in Settings Persistence.

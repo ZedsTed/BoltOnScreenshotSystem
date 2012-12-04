@@ -7,7 +7,20 @@ using System.Collections.Generic;
 
 public class bossGUI : MonoBehaviour
 {
-	public BOSS boss = new BOSS();
+	
+	private static BOSS _boss;
+	private BOSS boss 
+	{
+		get
+		{
+			if (_boss == null)
+			_boss = new BOSS();
+			return _boss;
+		}
+
+	}
+	
+	//public BOSS boss = new BOSS();
 	
 	public void mainGUI ()
 	{

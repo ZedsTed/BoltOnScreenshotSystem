@@ -12,6 +12,7 @@ You should have received a copy of the GNU General Public License
 along with The Bolt-On Screenshot System.  If not, see <http://www.gnu.org/licenses/>.*/
 
 //---Warning, here be spaghetti-code. Read at your own risk, I am not responsible for any fits of rage, strokes or haemorrhages that occur from reading this code.---//
+//--Much thanks to cybutek for his code to fix multiple instances of code being run--//
 
 using System;
 using UnityEngine;
@@ -30,8 +31,8 @@ public class BOSS : PartModule
 	public Vessel activeVessel;
 	protected Rect windowPos;
 	protected Rect helpWindowPos;
-	private string kspDir;
-	private string kspDir2;
+	private string kspDir = KSPUtil.ApplicationRootPath;
+	private string kspDir2 = KSPUtil.ApplicationRootPath + @"PluginData/boss/";
 	public int screenshotCount,	superSampleValueInt = 1;
 	public string superSampleValueString = "1";
 	public string screenshotKey = "z";
@@ -41,11 +42,25 @@ public class BOSS : PartModule
 	public bool showHelp = false;
 	//private static int lastFrame = -1;	
 	public int i;
-	public bool burstMode = true;
+	public bool burstMode = false;
 	public bool showGUI = false;
-	public string AGroups;
 	
-	public bossGUI pluginGUI = new bossGUI();
+	 public bool IsPrimary { get; protected set; }
+	
+	/*private static bossGUI _pluginGUI;
+	private bossGUI pluginGUI 
+	{
+		get
+		{
+			if (_pluginGUI == null)
+			_pluginGUI = new bossGUI();
+			return _pluginGUI;
+		}
+
+	}
+	*/
+	
+	//public bossGUI pluginGUI = new bossGUI();
 
 	[KSPEvent(guiActive=true, guiName="Show GUI")]
 	public void ShowGUI() 
@@ -63,14 +78,100 @@ public class BOSS : PartModule
 		showGUI = false;
 	}
 	
+	 protected bool CheckIsPrimary(string className, List<Part> partList)
+        {
+            // Check if this part is attached to anything.
+            if (this.part.parent == null)
+                return false;
+
+            // Loop through all parts on the ship.
+            foreach (Part part in partList)
+            {
+                // Check if it is not this part and is an BOSS part.
+                if (part != this.part && part.Modules.Contains(className))
+                {
+                    // Convert part to type BOSS to access it's properties.
+                    BOSS partMod = (part.Modules[className] as BOSS);
+
+                    // Check if the part is primary already.
+                    if (partMod.IsPrimary)
+                    {
+                        // If the part is primary, return that this part cannot be primary.
+                        print("BOSS: CheckIsPrimary(" + className + ") = false");
+                        return false;
+                    }
+                }
+            }
+
+            // If no other parts found to be primary, return that this part can be primary.
+            print("BOSS: CheckIsPrimary(" + className + ") = true");
+            return true;
+        }
+	
+	
 	private void WindowGUI(int windowID)		
 	{			 
-		pluginGUI.mainGUI();
+		GUIStyle mainGUI = new GUIStyle(GUI.skin.button); 
+		mainGUI.normal.textColor = mainGUI.focused.textColor = Color.white;
+		mainGUI.hover.textColor = mainGUI.active.textColor = Color.yellow;
+		mainGUI.onNormal.textColor = mainGUI.onFocused.textColor = mainGUI.onHover.textColor = mainGUI.onActive.textColor = Color.green;
+		mainGUI.padding = new RectOffset(8, 8, 8, 8);			
+		
+		
+		GUIStyle infoGUI = new GUIStyle(GUI.skin.button);
+		infoGUI.normal.textColor = infoGUI.focused.textColor = Color.white;
+		infoGUI.hover.textColor = infoGUI.active.textColor = Color.yellow;
+		infoGUI.onNormal.textColor = infoGUI.onFocused.textColor = infoGUI.onHover.textColor = infoGUI.onActive.textColor = Color.green;
+		infoGUI.padding = new RectOffset(8, 8, 8, 8);
+		GUILayout.BeginHorizontal();			
+		
+		
+		
+		if (GUILayout.Button("Screenshot",mainGUI,GUILayout.Width(85)))//GUILayout.Button is "true" when clicked
+		{	
+			if (burstMode == true)
+			{
+				burstModeMethod();	
+			}
+		else{screenshotMethod();}
+		
+		}			
+		showHelp = GUILayout.Toggle(showHelp,"+", GUILayout.ExpandWidth(true));		
+		GUILayout.EndHorizontal();                
+		GUI.DragWindow(new Rect(0, 0, 10000, 20));		
 	}	
 	
 	private void helpGUI(int WindowID)
 	{	
-		pluginGUI.helpGUI ();			
+		GUILayout.BeginVertical();
+		GUILayout.Label("Current supersample value: " + superSampleValueInt.ToString(), GUILayout.ExpandHeight(true), GUILayout.ExpandWidth(true));
+		GUILayout.Label("Supersample value: ");
+		superSampleValueString = GUILayout.TextField(superSampleValueString);	
+		try
+		{
+			superSampleValueInt = Int32.Parse(superSampleValueString);
+			i = 0;
+		}
+		catch
+		{
+			while (i < 1)
+			{ // stops the catch from spamming the debug log.
+				Debug.Log("You haven't entered an integer.");
+				i++;
+			}
+		}
+		GUILayout.Label("You have taken " + screenshotCount + " screenshots.");
+		/*burstModeSettingString = GUILayout.TextField(burstModeSetting.ToString());	
+		try
+		{
+		burstModeSetting = Int32.Parse(burstModeSettingString);
+		}
+		catch
+		{
+		print("You haven't entered an integer.");
+		}*/
+		GUILayout.EndVertical();
+		GUI.DragWindow(new Rect(0, 0, 10000, 20));	
 	}
 	
 	public void screenshotMethod()
@@ -79,10 +180,10 @@ public class BOSS : PartModule
 		print("Screenshot button pressed!");
 		print(screenshotFilename);
 		print(screenshotCount);
+		print(KSPUtil.ApplicationRootPath);
 		print(kspDir);
-		print(kspDir2);
 		print("Your supersample value was " + superSampleValueInt + "!");
-		Application.CaptureScreenshot(kspDir + pluginFolder + screenshotFilename + ".png", superSampleValueInt);		
+		Application.CaptureScreenshot(kspDir2 + screenshotFilename + ".png", superSampleValueInt);		
 		screenshotCount++;
 		saveSettings();			
 	}		
@@ -102,36 +203,56 @@ public class BOSS : PartModule
 	}	
 	
 	public override void OnStart(StartState state)  //Called when vessel is placed on the launchpad
-	{				
-		kspDir2 = KSPUtil.ApplicationRootPath;			//Thank you to Innsewerants for this bit of code from his mapsat plugin.
-		int lastIndex = kspDir2.LastIndexOf('/');
-		if (lastIndex != -1)
-		{
-		kspDir = kspDir2.Substring(0, lastIndex + 1);
+	{	
+		if (state != StartState.Editor && this.vessel.rootPart == FlightGlobals.ActiveVessel.rootPart)
+		{			
+		activeVessel = this.vessel;
+		IsPrimary = CheckIsPrimary("BOSS", activeVessel.parts);
+		if (IsPrimary)
+                {
+					
+                    // Load the settings for the window position.
+                    try
+					{
+			//			screenshotCount = Int32.Parse(screenshotCountString);
+						loadSettings();
+					}
+					catch
+					{
+						print("There is an error reading the screenshot persistence file.");	
+					}
+
+                    // If no saved position was found, set default.
+                    
+					if ((windowPos.x == 0) && (windowPos.y == 0))//windowPos is used to position the GUI window, lets set it in the center of the screen
+					{
+							windowPos = new Rect(Screen.width / 2, Screen.height / 2, 10, 10);
+					}	
+
+                    // Add the DrawGUI callback method into the GUI rendering queue.
+                   
+                    // Instantiate the Rendezvous object with this module.
+                    
+						RenderingManager.AddToPostDrawQueue(3, new Callback(drawGUI));//start the GUI			
+					                   
+                    //this.part.force_activate();
+
+                    // Set that the BOSS has now started and exit method.
+                    //BOSSStarted = true;
+                    return;
+                }
 		}
 		
-		if (state != StartState.Editor)
-		{
-			RenderingManager.AddToPostDrawQueue(3, new Callback(drawGUI));//start the GUI			
+		
 		}
 		
 		
-		if ((windowPos.x == 0) && (windowPos.y == 0))//windowPos is used to position the GUI window, lets set it in the center of the screen
-		{
-			windowPos = new Rect(Screen.width / 2, Screen.height / 2, 10, 10);
-		}	
+		
+		
 		//screenshotCountString = screenshotCount.ToString();
 		//			screenshotCountString = KSP.IO.File.ReadAllText<BOSS>(screenshotPersistence, null);
-		try
-		{
-			//			screenshotCount = Int32.Parse(screenshotCountString);
-			loadSettings();
-		}
-		catch
-		{
-			print("There is an error reading the screenshot persistence file.");	
-		}
-	}
+		
+	
 	
 	
 	/*public override void OnAwake ()
