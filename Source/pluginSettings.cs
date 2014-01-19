@@ -1,32 +1,37 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using KSP.IO;
 
 
-public class Settings
+public class BOSSSettings
 {
-	PluginConfiguration pluginsettings = PluginConfiguration.CreateForType<BOSS>(null);
+    PluginConfiguration pluginsettings = PluginConfiguration.CreateForType<BOSS>(null);
+
+    public void Create()
+    { 
+        
+    }
 
     public void Load()
-    {	
+    {
+
         pluginsettings.load();
     }
 
     public void Save()
-    {	
-		pluginsettings.save();
+    {
+        pluginsettings.save();
     }
 
     public void SetValue(string name, string value)
-    {			
+    {
         pluginsettings.SetValue(name, value);
     }
 
     public string GetValue(string name)
-    {	
-		
+    {
+
         return pluginsettings.GetValue<string>(name);
     }
 }
